@@ -1,0 +1,25 @@
+export const TABLES = ['projects','sources','tasks','revisions','drafts','handoffs','runs','receipts','evidence','assessments','acceptances','audit','diagnostics','history_files'] as const;
+export type Table = typeof TABLES[number];
+export const SCHEMA = `
+CREATE TABLE IF NOT EXISTS projects(id TEXT PRIMARY KEY, data TEXT NOT NULL CHECK(json_valid(data))) STRICT;
+CREATE TABLE IF NOT EXISTS sources(id TEXT PRIMARY KEY, project_id TEXT NOT NULL REFERENCES projects(id), session_id TEXT NOT NULL, sequence INTEGER NOT NULL, archived INTEGER NOT NULL, attribution TEXT NOT NULL, role TEXT NOT NULL, kind TEXT NOT NULL, text TEXT NOT NULL, fingerprint TEXT NOT NULL, data TEXT NOT NULL CHECK(json_valid(data))) STRICT;
+CREATE INDEX IF NOT EXISTS source_session ON sources(session_id,sequence);
+CREATE INDEX IF NOT EXISTS source_project ON sources(project_id,archived,attribution);
+CREATE TABLE IF NOT EXISTS tasks(id TEXT PRIMARY KEY, project_id TEXT NOT NULL REFERENCES projects(id), current_revision_id TEXT REFERENCES revisions(id) DEFERRABLE INITIALLY DEFERRED, archived INTEGER NOT NULL, data TEXT NOT NULL CHECK(json_valid(data))) STRICT;
+CREATE TABLE IF NOT EXISTS revisions(id TEXT PRIMARY KEY, task_id TEXT NOT NULL REFERENCES tasks(id), number INTEGER NOT NULL, parent_id TEXT REFERENCES revisions(id), text TEXT NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)), UNIQUE(task_id,number)) STRICT;
+CREATE TABLE IF NOT EXISTS drafts(id TEXT PRIMARY KEY REFERENCES tasks(id), data TEXT NOT NULL CHECK(json_valid(data))) STRICT;
+CREATE TABLE IF NOT EXISTS handoffs(id TEXT PRIMARY KEY, task_id TEXT REFERENCES tasks(id), revision_id TEXT REFERENCES revisions(id), data TEXT NOT NULL CHECK(json_valid(data))) STRICT;
+CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY, data TEXT NOT NULL CHECK(json_valid(data))) STRICT;
+CREATE TABLE IF NOT EXISTS receipts(id TEXT PRIMARY KEY, run_id TEXT NOT NULL REFERENCES runs(id), task_id TEXT NOT NULL REFERENCES tasks(id), revision_id TEXT NOT NULL REFERENCES revisions(id), handoff_id TEXT NOT NULL REFERENCES handoffs(id), snapshot_id TEXT NOT NULL, text TEXT NOT NULL, data TEXT NOT NULL CHECK(json_valid(data))) STRICT;
+CREATE TABLE IF NOT EXISTS evidence(id TEXT PRIMARY KEY, receipt_id TEXT NOT NULL REFERENCES receipts(id), source_id TEXT REFERENCES sources(id), data TEXT NOT NULL CHECK(json_valid(data))) STRICT;
+CREATE TABLE IF NOT EXISTS assessments(id TEXT PRIMARY KEY, task_id TEXT NOT NULL REFERENCES tasks(id), revision_id TEXT NOT NULL REFERENCES revisions(id), snapshot_id TEXT NOT NULL, data TEXT NOT NULL CHECK(json_valid(data))) STRICT;
+CREATE TABLE IF NOT EXISTS acceptances(id TEXT PRIMARY KEY, task_id TEXT NOT NULL REFERENCES tasks(id), revision_id TEXT NOT NULL REFERENCES revisions(id), snapshot_id TEXT NOT NULL, data TEXT NOT NULL CHECK(json_valid(data))) STRICT;
+CREATE TABLE IF NOT EXISTS audit(id TEXT PRIMARY KEY, task_id TEXT REFERENCES tasks(id), data TEXT NOT NULL CHECK(json_valid(data))) STRICT;
+CREATE TABLE IF NOT EXISTS diagnostics(id TEXT PRIMARY KEY, project_id TEXT NOT NULL REFERENCES projects(id), data TEXT NOT NULL CHECK(json_valid(data))) STRICT;
+CREATE TABLE IF NOT EXISTS history_files(id TEXT PRIMARY KEY, project_id TEXT NOT NULL REFERENCES projects(id), data TEXT NOT NULL CHECK(json_valid(data))) STRICT;
+CREATE INDEX IF NOT EXISTS revision_task ON revisions(task_id,number);
+CREATE INDEX IF NOT EXISTS receipt_task ON receipts(task_id,revision_id);
+CREATE INDEX IF NOT EXISTS assessment_task ON assessments(task_id,revision_id,snapshot_id);
+CREATE INDEX IF NOT EXISTS acceptance_task ON acceptances(task_id,revision_id,snapshot_id);
+PRAGMA user_version=1;
+`;

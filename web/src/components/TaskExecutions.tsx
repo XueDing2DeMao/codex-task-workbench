@@ -1,0 +1,20 @@
+import { useState } from 'react';
+import type { Handoff, ReceiptInput, Revision, TaskDetail } from '../../../shared/contracts.ts';
+import { api } from '../api.ts';
+import { errorMessage } from '../hooks.ts';
+import { formatTime, labels, shortId } from '../model.ts';
+import { Badge, Dialog, EmptyState, ErrorNotice, JsonInput } from './Ui.tsx';
+import { Icon } from './Icon.tsx';
+
+export function TaskExecutions({ detail, revision, onChanged, onHandoff, onSource }: { detail: TaskDetail; revision: Revision; onChanged: () => void; onHandoff: (handoff: Handoff) => void; onSource: (id: string) => void }) {
+  const [importOpen, setImportOpen] = useState(false); const [json, setJson] = useState(''); const [busy, setBusy] = useState(false); const [error, setError] = useState('');
+  const receipts = detail.receipts.filter(item => item.revisionId === revision.id);
+  const handoffs = detail.handoffs.filter(item => item.revisionId === revision.id);
+  const current = detail.task.currentRevisionId === revision.id;
+  function createHandoff() { setBusy(true); setError(''); void api.handoff({ purpose: 'execute', taskId: detail.task.id, revisionId: revision.id }).then(result => { onHandoff(result); onChanged(); }).catch(problem => setError(errorMessage(problem))).finally(() => setBusy(false)); }
+  return <><div className="section-actions"><div><h3>v{revision.number} 的执行记录</h3><p>执行结束与通过验收分别记录；旧版本回执始终留在旧版本。</p></div><div><button className="button" disabled={!current || detail.task.archived} onClick={() => { setError(''); setImportOpen(true); }}><Icon name="upload" />导入回执</button><button className="button button-primary" disabled={busy || !current || detail.task.archived} onClick={createHandoff}><Icon name="download" />{busy ? '生成中…' : '生成执行包'}</button></div></div><ErrorNotice message={error} />
+    {handoffs.length ? <div className="handoff-strip">{handoffs.map(item => <button key={item.id} onClick={() => onHandoff(item)}><Icon name="file" /><span>{labels[item.purpose]} <code>{shortId(item.id)}</code></span><small>{formatTime(item.createdAt)}</small><Icon name="download" size={15} /></button>)}</div> : null}
+    {receipts.length ? <div className="receipts-list">{receipts.map(receipt => <article className="receipt-card" key={receipt.receiptId}><header><div><h4>运行 <code>{shortId(receipt.runId)}</code></h4><span className="muted">{formatTime(receipt.createdAt)} · v{revision.number}</span></div><Badge value={receipt.status} /></header><p>{receipt.summary}</p><div className="snapshot-line">目标快照 <code>{receipt.snapshotId}</code></div><details><summary>{receipt.evidence.length} 条证据记录</summary>{receipt.evidence.map(evidence => <div className="receipt-evidence" key={evidence.id}><div><code>{evidence.criterionId}</code><Badge value={evidence.kind} /></div><pre>{evidence.text}</pre>{evidence.sourceId ? <button className="text-button" onClick={() => onSource(evidence.sourceId!)}>查看原始证据<Icon name="arrow" size={14} /></button> : null}{evidence.kind === 'agent_report' ? <p className="field-hint">代理自述不能用于通过判断，请核对实际结果证据。</p> : null}</div>)}</details></article>)}</div> : <EmptyState icon="clock" title="这个版本尚未收到执行回执">先生成版本固定的执行包，在 Codex 中完成工作后，把结构化回执带回这里。</EmptyState>}
+    {importOpen ? <Dialog title="导入结构化执行回执" description="回执包含任务版本、运行、目标快照与证据。导入不会生成你的人工验收。" onClose={() => setImportOpen(false)} wide><JsonInput value={json} onChange={setJson} label="ReceiptInput JSON" /><ErrorNotice message={error} /><div className="dialog-footer"><button className="button" onClick={() => setImportOpen(false)} disabled={busy}>取消</button><button className="button button-primary" disabled={busy || !json.trim()} onClick={() => { setError(''); try { const input = JSON.parse(json) as ReceiptInput; if (input.taskId !== detail.task.id) throw new Error('这份回执不属于当前任务，请到对应任务导入。'); setBusy(true); void api.receipt(input).then(() => { setImportOpen(false); setJson(''); onChanged(); }).catch(problem => setError(errorMessage(problem))).finally(() => setBusy(false)); } catch (problem) { setError(errorMessage(problem)); } }}>{busy ? '校验中…' : '校验并导入'}</button></div></Dialog> : null}
+  </>;
+}
