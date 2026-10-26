@@ -79,7 +79,7 @@ if (!process.argv.includes('--schema-only') && generation.exitCode === 0) {
     return value as any;
   }
   try {
-    const initialized = await rpc('initialize', { clientInfo: { name: 'codex_task_workbench_probe', version: '1.0.0' }, capabilities: { experimentalApi: true } });
+    const initialized = await rpc('initialize', { clientInfo: { name: 'codex_task_workbench_probe', version: '1.1.0' }, capabilities: { experimentalApi: true } });
     if (initialized.result) {
       child.stdin.write(JSON.stringify({ method: 'initialized', params: {} }) + '\n');
       await rpc('thread/list', { limit: 1, archived: false, useStateDbOnly: true });

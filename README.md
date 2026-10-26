@@ -4,16 +4,16 @@
 
 任务空间是独立的第三方工具，**非 OpenAI 官方产品**。它只读本机已有的 Codex 数据，读取与搜索在本机完成；不会创建、执行或编辑 Codex 任务，也不会把项目导入 Codex。
 
-**版本 1.0（v1.0.0） · Windows 10 / 11 x64**
+**版本 1.1（v1.1.0） · Windows 10 / 11 x64**
 
-[下载桌面版](https://github.com/XueDing2DeMao/codex-task-workbench/releases/tag/v1.0.0) · [反馈问题](https://github.com/XueDing2DeMao/codex-task-workbench/issues)
+[下载桌面版](https://github.com/XueDing2DeMao/codex-task-workbench/releases/tag/v1.1.0) · [反馈问题](https://github.com/XueDing2DeMao/codex-task-workbench/issues)
 
 ## 1. 下载并启动
 
 | 版本 | 下载 | 使用方式 |
 | --- | --- | --- |
-| 安装版 | [TaskSpace-1.0.0-Setup-x64.exe](https://github.com/XueDing2DeMao/codex-task-workbench/releases/download/v1.0.0/TaskSpace-1.0.0-Setup-x64.exe) | 双击安装包，按向导完成安装后启动 |
-| 免安装版 | [TaskSpace-1.0.0-win-x64.zip](https://github.com/XueDing2DeMao/codex-task-workbench/releases/download/v1.0.0/TaskSpace-1.0.0-win-x64.zip) | **完整解压**到文件夹，再双击其中的 `任务空间.exe` |
+| 安装版 | [TaskSpace-1.1.0-Setup-x64.exe](https://github.com/XueDing2DeMao/codex-task-workbench/releases/download/v1.1.0/TaskSpace-1.1.0-Setup-x64.exe) | 双击安装包，按向导完成安装后启动 |
+| 免安装版 | [TaskSpace-1.1.0-win-x64.zip](https://github.com/XueDing2DeMao/codex-task-workbench/releases/download/v1.1.0/TaskSpace-1.1.0-win-x64.zip) | **完整解压**到文件夹，再双击其中的 `任务空间.exe` |
 
 两种版本都自带专用运行环境，**不需要安装 Node.js，不需要输入命令，也不需要手动导入文件**。
 
@@ -62,6 +62,8 @@
 导出得到 `.md` 文件，按轮次保留原始需求与明确的最终输出，不受卡片分页或详情折叠影响。每轮采用 Callout 引用卡片，可用 Obsidian 或其他 Markdown 阅读器打开；**使用任务空间不需要安装 Obsidian**。导出不会打包图片或其他附件。若所选任务正文读取失败，程序会报告错误，不会悄悄漏掉该任务。
 
 ## 4. 搜索项目、任务和完整正文
+
+顶部导航栏会随页面滚动保持可见，便于随时搜索或返回所有项目。
 
 在顶部搜索框输入关键词，即可查找项目名称、任务标题、完整需求与输出。搜索范围包含已归档任务和子任务，不局限于当前屏幕上的卡片。
 

@@ -194,7 +194,10 @@ export default function Viewer() {
     window.history[replace ? 'replaceState' : 'pushState'](null, '', hrefFor(next)); setRoute(next);
     if (!replace) { window.scrollTo({ top: 0 }); if (focusHeading) requestAnimationFrame(() => document.getElementById('page-title')?.focus({ preventScroll: true })); }
   }
-  function search(value: string) { navigate({ q: value || undefined }, !route.project && !route.task, false); }
+  function search(value: string) {
+    window.scrollTo({ top: 0 });
+    navigate({ q: value || undefined }, !route.project && !route.task, false);
+  }
   function refresh() { setRevision(value => value + 1); }
   const missing = route.task && !task || route.project && !project;
   return <div className="viewer-shell">

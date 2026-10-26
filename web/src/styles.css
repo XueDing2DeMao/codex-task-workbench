@@ -13,6 +13,8 @@
   --accent: #5e6ad2;
   --accent-soft: #f2f3ff;
   --radius: 12px;
+  --viewer-header-height: 105px;
+  scroll-padding-top: calc(var(--viewer-header-height) + 16px);
 }
 
 * { box-sizing: border-box; }
@@ -35,10 +37,10 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .skip-link:focus { top: 12px; }
 
 .viewer-shell { min-height: 100vh; display: flex; flex-direction: column; }
-.viewer-header { background: var(--surface); border-bottom: 1px solid var(--border); }
+.viewer-header { position: sticky; top: 0; z-index: 20; background: var(--surface); border-bottom: 1px solid var(--border); }
 .header-inner {
   max-width: 1200px;
-  min-height: 104px;
+  min-height: calc(var(--viewer-header-height) - 1px);
   margin: 0 auto;
   padding: 20px 48px;
   display: flex;
@@ -199,8 +201,9 @@ mark { padding: 0 2px; border-radius: 3px; background: #edf0ff; color: #3946a1; 
 }
 
 @media (max-width: 640px) {
+  :root { --viewer-header-height: 137px; }
   body { font-size: 15px; }
-  .header-inner { align-items: stretch; flex-direction: column; min-height: 0; padding: 20px 20px 16px; gap: 14px; }
+  .header-inner { align-items: stretch; flex-direction: column; padding: 20px 20px 16px; gap: 14px; }
   .viewer-brand { align-self: flex-start; min-height: 40px; gap: 10px; }
   .viewer-brand > svg { width: 28px; height: 28px; }
   .brand-name { font-size: 21px; }
