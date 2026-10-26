@@ -6,6 +6,8 @@ import { useDebounced, useQuery } from '../hooks.ts';
 import { nativeApi } from '../native-api.ts';
 import { Content } from './Content.tsx';
 import { ExchangeExport } from './ExchangeExport.tsx';
+import { OutputCopy } from './OutputCopy.tsx';
+import { LoadingSkeleton as Loading } from './LoadingSkeleton.tsx';
 import { ProjectExportMenu, ProjectExportStatus, useProjectExport } from './ProjectExport.tsx';
 import { buildTaskHierarchy, groupSearchResults } from './task-groups.ts';
 import type { GroupedTaskSummary, TaskHierarchy } from './task-groups.ts';
@@ -45,9 +47,6 @@ function Heading({ title, count, description, action }: { title: string; count?:
 }
 function ArchiveLink({ project, navigate }: { project: NativeProject; navigate: Navigate }) {
   return <NavLink route={{ project: project.id }} navigate={navigate} className="archive-entry" label={`查看已归档任务（${project.taskCount} 个）`}><Icon name="archive" size={18} /><span>已归档</span><span className="archive-entry-count">{project.taskCount}</span></NavLink>;
-}
-function Loading({ label }: { label: string }) {
-  return <div className="viewer-loading" role="status"><p>{label}</p><div className="loading-grid" aria-hidden="true">{[1, 2, 3].map(index => <div className="skeleton-card" key={index} />)}</div></div>;
 }
 function Failure({ message, retry }: { message: string; retry: () => void }) {
   return <div className="error-state" role="alert"><Icon name="file" size={32} /><h2>暂时无法读取内容</h2><p>{message}</p><button className="text-button" onClick={retry}>重新加载</button></div>;
@@ -89,7 +88,7 @@ function Exchange({ taskId, exchange, number, highlighted = false }: { taskId: s
     <div className="exchange-heading"><span>第 {number} 轮{highlighted ? <small className="match-label">搜索命中</small> : null}</span><div className="exchange-actions">{exchange.createdAt ? <time dateTime={exchange.createdAt}>{formatTime(exchange.createdAt)}</time> : null}<ExchangeExport key={`${taskId}:${exchange.id}`} taskId={taskId} exchangeId={exchange.id} number={number} /></div></div>
     <div className="detail-grid">
       <section className="detail-panel" aria-label={`第 ${number} 轮需求`}><div className="panel-heading"><h2>需求</h2></div><div className="requirement-list">{exchange.requirements.length ? exchange.requirements.map((text, index) => <div className="requirement-item" key={index}><Content text={text} /></div>) : <p className="muted">本轮没有独立的需求文本。</p>}</div></section>
-      <section className="detail-panel" aria-label={`第 ${number} 轮输出结果`}><div className="panel-heading"><h2>输出结果</h2>{exchange.outputs.length > 1 ? <small>{exchange.outputs.length} 项结果</small> : null}</div><div className="output-list">{exchange.outputs.length ? exchange.outputs.map(output => <article className="output-item" key={output.id}><Content text={output.text} /></article>) : <div className="output-empty"><Icon name="file" size={28} /><p>暂无对应输出</p><small>本轮记录中还没有最终输出内容。</small></div>}</div></section>
+      <section className="detail-panel" aria-label={`第 ${number} 轮输出结果`}><div className="panel-heading output-heading"><div className="output-heading-title"><h2>输出结果</h2>{exchange.outputs.length > 1 ? <small>{exchange.outputs.length} 项结果</small> : null}</div><OutputCopy key={`${taskId}:${exchange.id}`} text={exchange.outputs.map(output => output.text).join('\n\n')} number={number} /></div><div className="output-list">{exchange.outputs.length ? exchange.outputs.map(output => <article className="output-item" key={output.id}><Content text={output.text} /></article>) : <div className="output-empty"><Icon name="file" size={28} /><p>暂无对应输出</p><small>本轮记录中还没有最终输出内容。</small></div>}</div></section>
     </div>
   </section>;
 }
@@ -111,7 +110,7 @@ function TaskConversation({ task, revision, highlightTurn }: { task: NativeTaskS
     return () => cancelAnimationFrame(frame);
   }, [highlightTurn, detail.data, detail.loading, visible, task.id]);
   return <>
-    {detail.loading ? <Loading label="正在读取完整需求与输出…" /> : null}
+    {detail.loading ? <Loading label="正在读取完整需求与输出…" variant="conversation" /> : null}
     {detail.error ? <Failure message={detail.error} retry={detail.refresh} /> : null}
     {detail.data && !detail.loading && !detail.error ? detail.data.availability === 'unavailable' ? <Empty title="正文暂时无法读取">任务目录已找到，但对应历史正文当前不可用。</Empty> : exchanges.length ? <>
       <div className="exchanges">{exchanges.slice(0, visible).map((exchange, index) => <Exchange key={exchange.id} taskId={task.id} exchange={exchange} number={index + 1} highlighted={exchange.id === highlightTurn} />)}</div>

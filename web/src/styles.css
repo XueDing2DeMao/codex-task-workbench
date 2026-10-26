@@ -78,7 +78,7 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .item-count { flex-shrink: 0; font-size: 14px; font-weight: 400; color: var(--muted); }
 .page-description { margin-top: 8px; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
 
-.card-grid, .loading-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .viewer-card {
   display: flex;
   flex-direction: column;
@@ -132,6 +132,12 @@ mark { padding: 0 2px; border-radius: 3px; background: #edf0ff; color: #3946a1; 
 .panel-heading { display: flex; align-items: baseline; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; margin-bottom: 22px; }
 .panel-heading h2 { font-size: 20px; font-weight: 600; line-height: 1.5; }
 .panel-heading small { font-size: 12px; color: var(--muted); }
+.detail-panel > .panel-heading { align-items: center; min-height: 44px; }
+.output-heading-title { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; }
+.output-copy { display: flex; align-items: flex-end; flex-direction: column; gap: 4px; margin-left: auto; max-width: 100%; }
+.output-copy-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 84px; min-height: 44px; padding: 6px 10px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #4b57b8; font-size: 13px; white-space: nowrap; }
+.output-copy-button:hover:not(:disabled) { background: var(--accent-soft); }
+.output-copy-error { max-width: 240px; color: #9b3548; font-size: 12px; text-align: right; overflow-wrap: anywhere; }
 .requirement-list, .output-list { min-width: 0; }
 .requirement-item + .requirement-item { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); }
 .output-item { min-width: 0; }
@@ -175,18 +181,13 @@ mark { padding: 0 2px; border-radius: 3px; background: #edf0ff; color: #3946a1; 
 .detail-panel .empty-state p { font-size: 14px; }
 .text-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 14px; border: 0; border-radius: 6px; background: transparent; color: #4b57b8; font-size: 14px; font-weight: 500; }
 .text-button:hover { background: var(--accent-soft); }
-.skeleton-card { min-height: 232px; border: 1px solid var(--border); border-radius: var(--radius); background: #fff; padding: 24px; }
-.skeleton-card::before, .skeleton-card::after { content: ""; display: block; height: 18px; margin-top: 48px; border-radius: 4px; background: #edf0f5; animation: pulse 1.8s ease-in-out infinite; }
-.skeleton-card::before { width: 65%; }
-.skeleton-card::after { width: 90%; height: 14px; margin-top: 18px; }
-@keyframes pulse { 50% { opacity: .45; } }
 .viewer-footer { display: flex; align-items: baseline; justify-content: flex-end; flex-wrap: wrap; gap: 8px 24px; width: 100%; max-width: 1200px; margin: auto auto 0; padding: 0 48px 24px; color: var(--muted); font-size: 12px; line-height: 1.6; }
 
 @media (max-width: 1000px) {
   .header-inner { padding-right: 32px; padding-left: 32px; }
   .viewer-main { padding: 36px 32px 48px; }
   .viewer-footer { padding-right: 32px; padding-left: 32px; }
-  .card-grid, .loading-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .detail-panel { padding: 24px; }
   .detail-grid { gap: 20px; }
 }
@@ -217,7 +218,7 @@ mark { padding: 0 2px; border-radius: 3px; background: #edf0ff; color: #3946a1; 
   .selection-toolbar { gap: 8px; padding: 10px 12px; }
   .selection-actions { justify-content: flex-end; flex: 1 0 100%; }
   .task-select { top: 8px; }
-  .card-grid, .loading-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .card-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .viewer-card { min-height: 214px; padding: 22px; }
   .viewer-card.project-card, .viewer-card.task-card { min-height: 112px; padding: 18px; }
   .card-title { font-size: 18px; }
@@ -243,7 +244,6 @@ mark { padding: 0 2px; border-radius: 3px; background: #edf0ff; color: #3946a1; 
 .detail-marks { margin: -16px 0 22px; }
 .detail-marks:has(.task-marks:empty) { display: none; }
 .detail-marks .task-marks { justify-content: flex-start; }
-.viewer-loading > p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
 .load-more { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 3px; margin-top: 28px; }
 .load-more small { color: var(--muted); font-size: 12px; }
 .exchange + .exchange { margin-top: 36px; }
@@ -296,8 +296,6 @@ mark { padding: 0 2px; border-radius: 3px; background: #edf0ff; color: #3946a1; 
 .child-task-content { padding: 4px 0 24px; }
 .child-task-content .detail-panel { background: #fcfcfe; }
 .child-task-content .empty-state { min-height: 140px; }
-.child-task-content .loading-grid { display: none; }
-.child-task-content .viewer-loading > p { margin: 10px 0 18px; }
 @media (max-width: 640px) {
   .related-tasks-toggle, .child-task-toggle { gap: 9px; }
   .related-tasks-toggle { padding: 13px 14px; }

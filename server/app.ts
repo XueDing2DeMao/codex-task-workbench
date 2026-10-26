@@ -44,7 +44,7 @@ export function createApp(options: AppOptions) {
     validateRequest(req, secret, bootstrap);
     if (bootstrap) {
       res.setHeader('Set-Cookie', `ctw_session_${req.socket.localPort}=${secret}; HttpOnly; SameSite=Strict; Path=/`);
-      return json(res, { application: 'codex-task-workbench', csrfToken: secret, allowedRoots: options.allowedRoots, dataDirectory: options.dataDirectory, version: '0.1.0', capabilities: { historyMode: 'jsonl', mcp: false } });
+      return json(res, { application: 'codex-task-workbench', csrfToken: secret, allowedRoots: options.allowedRoots, dataDirectory: options.dataDirectory, version: '1.0.0', capabilities: { historyMode: 'jsonl', mcp: false } });
     }
     if (path === '/api/shutdown' && method === 'POST' && options.onShutdown) {
       const input = await body(req); assertAllowedKeys(input, []);
